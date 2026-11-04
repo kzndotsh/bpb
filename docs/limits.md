@@ -35,7 +35,7 @@ Write this into the README so nobody, including future you, oversells it:
 - Automatic responses stop at freeze, so an attack in progress is contained, not erased; burning it needs you. That is the price of not letting root on the box, or an outage, burn your results.
 - NixOS has no mandatory access control today. The job runs confined by systemd sandboxing, noexec mounts and the verity store, not by SELinux or AppArmor. bpb's own services add Landlock; the job's own code does not.
 - Nix's own tooling has no published security audit or risk assessment. bpb removes the Nix daemon from the box and keeps the anchor's Nix patched, but the build tooling itself is trusted, not verified.
-- Module signing on NixOS is new: deterministic module verification merged in October 2026, optional and not yet a NixOS option. Until bpb adopts it, the window between boot and arm relies on ordering alone.
+- Module signing on NixOS is new: deterministic module verification merged in October 2026, optional and not yet a NixOS option. Until bpb adopts it, the boot window before the module lock relies on ordering alone.
 
 The goal is a box where a successful snoop yields tokenized, decoy-padded, uncorrelatable bytes for a few hours, and where you probably find out anyway.
 

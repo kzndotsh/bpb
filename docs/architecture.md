@@ -73,7 +73,8 @@ modules/
     canaries.nix     honeyfiles, per-box honey creds, DNS canaries, honey user,
                      honey port (nftables log-and-drop)
     attest.nix       verity root hash + closure hash report, TPM/SNP quote when present
-    lockdown.nix     late-boot one-way switches (modules, kexec if present, bpf, lockdown)
+    lockdown.nix     module lock at boot; arm-time one-way switches (kexec if present,
+                     bpf, lockdown)
     burn.nix         cryptoshred unit, run through the control service
   anchor/
     base.nix         FDE unlocked by two enrolled tokens + PIN, one key per role,
@@ -132,7 +133,7 @@ provisioned → attested → armed → running → draining → burned → verif
   - **No hardware:** the box reports its closure hash and public keys. This catches drift and sloppy tampering, not rung 2+, and the ledger records it as `"kind": "none"`: not attested, never a weaker pass. Key delivery to such a box is trust-on-first-use, and the ledger says so.
 
   Why only hardware counts: whoever controls a server can change what it runs while it keeps looking normal. Dutch police ran Hansa Market for a month after taking its servers over, and modified its code to capture passwords and order details before they were encrypted.[^hansa] A self-reported hash from such a box would have said nothing was wrong. On success the anchor revokes the enrollment credential, registers the box's event key with the witness, and **seals** the box's runtime keys to the attested key (TPM `MakeCredential`/`ActivateCredential`, or encryption to the SNP-bound key): the runtime WireGuard key, the initial Rosenpass PSK, the SSH host key and its anchor-signed host certificate. The anchor deletes its copies of every private half immediately after delivery; it only ever needs the public halves.
-- **armed.** Late-boot one-way switches flip (see Lockdown). Canaries are laid out with a fresh random layout. The witness confirms the evidence stream is flowing and sends the anchor a signed "stream healthy" receipt. Only against that receipt does the anchor format the work volume with an anchor-generated volume key (see Disk and memory) and enable this box's Tang instance.
+- **armed.** The arm-time one-way switches flip (see Lockdown); module loading was already locked at boot. Canaries are laid out with a fresh random layout. The witness confirms the evidence stream is flowing and sends the anchor a signed "stream healthy" receipt. Only against that receipt does the anchor format the work volume with an anchor-generated volume key (see Disk and memory) and enable this box's Tang instance.
 - **running.** The job runs. Job traffic goes only to the anchor (through the relay); evidence goes only to the witness (directly). The witness gets events and a heartbeat every 10 seconds. The anchor pulls a checkpoint through the airlock at a job-defined interval, so a false trip costs minutes of work, not the whole job.
 - **draining.** Outputs are pulled over WG and validated in the airlock quarantine. The anchor drops the box's WG peer only after burn step 3 has run on the box.
 - **frozen.** The anchor stops sending data, pauses checkpoints at the last good one, and disables the box's Tang instance (moved out of the served set; the key still exists). Freeze is reversible in two ways. If the box is still up and the operator clears the signal, `bpb unfreeze` returns it to `running`. If the box has rebooted or powered off, it cannot rejoin: its runtime keys lived only in RAM, its enrollment credential is revoked, and the anchor never re-delivers keys to a box that has already been delivered to. "Resume" then means a fresh box with fresh keys, restarting from the last checkpoint. Freeze keeps the data; it does not always keep the job.

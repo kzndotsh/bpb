@@ -55,9 +55,11 @@ Tests marked **[hw]** need real hardware or a real provider (a GPU, a physical T
    - a host-certificate signature whose principal matches no started run raises an alert
    - the anchor's attempt to prune the witness's copy early is refused
    - **[hw]** GPU load with no job running raises a resource alert, and nothing on the automatic ladder fires
-6. **M5. Lockdown and kernel config.** The arm-time switches, the box's tailored kernel, every module (NVIDIA and `nvidia_uvm` included) loaded before arm, BPF closed to root after arm, the LSM list, Landlock in bpb's services, and the job unit's sandbox. Test:
+6. **M5. Lockdown and kernel config.** The arm-time switches, the box's tailored kernel, module loading locked at boot with every needed module (NVIDIA and `nvidia_uvm` included) preloaded or built in, user namespaces compiled out, BPF closed to root after arm, the LSM list, Landlock in bpb's services, and the job unit's sandbox. Test:
    - `/sys/kernel/security/lsm` lists `landlock`, `lockdown`, `yama` and `bpf`
-   - after arm: `insmod` of any module fails; a root `bpf()` program load from anything but the shipper's identity is denied; `kernel.unprivileged_bpf_disabled` reads `1` and cannot be changed; `io_uring_setup` returns `ENOSYS` (compiled out)
+   - after boot, before arm: `modprobe` and `insmod` of any module fail, and arm still formats and opens the LUKS work volume
+   - creating a user namespace fails, as root too, and no systemd unit on the box sets `PrivateUsers=`
+   - after arm: a root `bpf()` program load from anything but the shipper's identity is denied; `kernel.unprivileged_bpf_disabled` reads `1` and cannot be changed; `io_uring_setup` returns `ENOSYS` (compiled out)
    - the arm step succeeds on a kernel whose `kexec_load_disabled` sysctl does not exist
    - **[hw]** the NVIDIA modules, including `nvidia_uvm` and its device nodes, are loaded and working after arm, with no setuid `nvidia-modprobe` wrapper present; lockdown can be raised at runtime after they have loaded
    - **every sensor still fires after lockdown**, which decides `confidentiality` versus `integrity`
