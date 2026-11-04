@@ -16,11 +16,11 @@ The controls a person performs. They aren't code, but they are still controls.
 
 ---
 
-[^vpsconsole]: r/selfhosted, "I thought my VPS was hardened, but it was compromised and I can't figure out how. Please help!" (April 2026, 149 comments), with the owner's logs and the community diagnosis of provider-console access. Read via Arctic Shift. https://www.reddit.com/r/selfhosted/comments/1se8ara/
+[^vpsconsole]: (informal) r/selfhosted, "I thought my VPS was hardened, but it was compromised and I can't figure out how. Please help!" (April 2026, 149 comments), with the owner's logs and the community diagnosis of provider-console access. Read via Arctic Shift. https://www.reddit.com/r/selfhosted/comments/1se8ara/
 
 [^homestack]: r/selfhosted, "My HomeServer Security Hardening Stack – Feedback & Review" (January 2026), comments on credential-led breaches and on rarely used paths failing quietly. Read via Arctic Shift. https://www.reddit.com/r/selfhosted/comments/1qhb8oe/
 
-[^guidethread]: r/selfhosted, "[Guide] Securing A Linux Server" (August 2024), comments on Docker bypassing UFW and on native FIDO SSH keys. Read via Arctic Shift. https://www.reddit.com/r/selfhosted/comments/1f3y16m/guide_securing_a_linux_server/
+[^guidethread]: (informal) r/selfhosted, "[Guide] Securing A Linux Server" (August 2024), comments on turning off Docker's iptables integration and on native FIDO SSH keys. Read via Arctic Shift. https://www.reddit.com/r/selfhosted/comments/1f3y16m/guide_securing_a_linux_server/
 
 [^openssh82]: OpenSSH 8.2 release notes (FIDO/U2F hardware authenticator support, `ecdsa-sk` and `ed25519-sk` key types). https://www.openssh.org/txt/release-8.2
 

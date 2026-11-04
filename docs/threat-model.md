@@ -54,6 +54,6 @@ Writing these down is part of principle 13. A plan that does not say what it can
 
 ---
 
-[^genesis]: CyberScoop, on the FBI's copies of Genesis Market's backend server (December 2020 and 2022) and the users identified from them (April 2023). https://cyberscoop.com/genesis-market-fbi-users-identified-arrests/
+[^genesis]: (secondary) CyberScoop, on the FBI's copies of Genesis Market's backend server (December 2020 and 2022) and the users identified from them (April 2023). https://cyberscoop.com/genesis-market-fbi-users-identified-arrests/
 
 [^silkroad]: Help Net Security, "FBI's account of locating Silk Road's server disputed by researchers" (September 2014), covering the Iceland server image and the dispute over the CAPTCHA-leak account. https://www.helpnetsecurity.com/2014/09/09/fbis-account-of-locating-silk-roads-server-disputed-by-researchers/

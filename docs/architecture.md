@@ -147,9 +147,9 @@ Every transition is idempotent. Re-running `bpb burn` on a half-burned box conve
 
 [^lanzaboote]: nix-community, Lanzaboote (Secure Boot for NixOS). https://github.com/nix-community/lanzaboote
 
-[^bootissue]: nixpkgs issue #549372, "End-to-end NixOS boot security" (tracking; opened August 2026; autopen, deterministic module signatures #571181, stage 2 measurement). https://github.com/NixOS/nixpkgs/issues/549372
+[^bootissue]: (primary) nixpkgs issue #549372, "End-to-end NixOS boot security" (tracking; opened August 2026), and its merged PRs: autopen #545457 (August 2026) and deterministic module verification #571181 (October 2026; optional, a bridge until hash-based module integrity lands in Linux). https://github.com/NixOS/nixpkgs/issues/549372 and https://github.com/NixOS/nixpkgs/pull/571181
 
-[^thread]: r/NixOS, "NixOS for high threat model server" (May 2025), comments by NixOS maintainer ElvishJerricco on dm-verity images, module signing, lockdown, MAC and the hardened profile, and on microvm.nix. Read via Arctic Shift. https://www.reddit.com/r/NixOS/comments/1kvpezv/
+[^thread]: (informal) r/NixOS, "NixOS for high threat model server" (May 2025), comments by NixOS maintainer ElvishJerricco on dm-verity images, module signing, lockdown, MAC and the hardened profile. Read via Arctic Shift. https://www.reddit.com/r/NixOS/comments/1kvpezv/
 
 [^sixostalk]: Adam Joseph, "sixos: a nix os without systemd", 38C3 (December 2024). https://app.media.ccc.de/v/38c3-sixos-a-nix-os-without-systemd and https://pretalx.c3voc.de/38c3/talk/690/
 

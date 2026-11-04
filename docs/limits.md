@@ -35,7 +35,7 @@ Write this into the README so nobody, including future you, oversells it:
 - Automatic responses stop at freeze, so an attack in progress is contained, not erased; burning it needs you. That is the price of not letting root on the box, or an outage, burn your results.
 - NixOS has no mandatory access control today. The job runs confined by systemd sandboxing, noexec mounts and the verity store, not by SELinux or AppArmor. bpb's own services add Landlock; the job's own code does not.
 - Nix's own tooling has no published security audit or risk assessment. bpb removes the Nix daemon from the box and keeps the anchor's Nix patched, but the build tooling itself is trusted, not verified.
-- NixOS cannot yet sign kernel modules. Until upstream lands it, the window between boot and arm relies on ordering alone.
+- Module signing on NixOS is new: deterministic module verification merged in October 2026, optional and not yet a NixOS option. Until bpb adopts it, the window between boot and arm relies on ordering alone.
 
 The goal is a box where a successful snoop yields tokenized, decoy-padded, uncorrelatable bytes for a few hours, and where you probably find out anyway.
 
@@ -73,7 +73,7 @@ Darknet-market takedowns from 2013 to 2025 are the largest public record of anon
 | The money trail | Funds ended at an exchange that knew the customer, or in wallets in the operator's own name, including after a swap to Monero. A tip jar paid out to the operator's own accounts. An exit scam created a fresh trail to follow. | Incognito,[^incognito] Monopoly,[^monopoly] Kingdom,[^kingdom] Dream Market (OxyMonster),[^oxymonster] Bohemia[^bohemia] |
 | The access path | Admins reached the servers through commercial VPNs. The VPN provider's records put a suspect's home connection online at the same times as admin activity. | Wall Street Market[^wsm] |
 | Writing style | Hundreds of forum posts matched an identifiable person's public posts by vocabulary, punctuation and language switching. | Dream Market (OxyMonster)[^oxymonster] |
-| Devices at the wrong moment | A laptop seized while unlocked and logged in as admin. Devices holding wallet keys seized at an airport. A laptop holding the account's PGP key searched at a border. | AlphaBay,[^alphabay] Bohemia,[^bohemia] Dream Market (OxyMonster)[^oxymonster] |
+| Devices at the wrong moment | A laptop seized unlocked and unencrypted, mid-way through an admin task on the server. Devices holding wallet keys seized at an airport. A laptop holding the account's PGP key searched at a border. | AlphaBay,[^alphabay] Bohemia,[^bohemia] Dream Market (OxyMonster)[^oxymonster] |
 | People inside | An undercover agent on the support staff for months, paid by the operator. | Silk Road 2.0[^sr2] |
 
 None of these cases needed a cryptographic break. Each risk is a link in the sense used below, and each is part of why operator anonymity stays a non-goal: bpb can avoid adding links, but most of these live in the operator's life, not in the infrastructure.
@@ -142,7 +142,7 @@ It stays a non-goal because it is a second project's worth of control-plane work
 
 [^fjta]: "FJTA: Forensic Journal Timeline Analysis" and related journal-based timeline work (CODE BLUE 2025), on rebuilding file activity from ext4/XFS journals independent of MACB timestamps. https://codeblue.jp/en/program/time-table/day2-t3-04
 
-[^snapshot]: DigitalOcean Community, "When destroying a droplet, is all information erased?" (snapshots and backups survive the droplet). https://www.digitalocean.com/community/questions/when-destroying-a-droplet-is-all-information-erased-if-not-what-is-recommended-procedure
+[^snapshot]: (primary) DigitalOcean docs, "How to Destroy Droplets": destroying a Droplet does not destroy its automated backups, and its snapshots survive unless selected for deletion. https://docs.digitalocean.com/products/droplets/how-to/destroy/
 
 [^murdoch]: Steven J. Murdoch and George Danezis, "Low-Cost Traffic Analysis of Tor", IEEE S&P 2005. https://www.murdoch.is/papers/oakland05torta.pdf
 
@@ -154,13 +154,13 @@ It stays a non-goal because it is a second project's worth of control-plane work
 
 [^sr2]: Help Net Security, "Silk Road 2.0 shut down, operator arrested, charged" (November 2014): an undercover agent on the support staff, and a server leased under a personal email address. https://www.helpnetsecurity.com/2014/11/07/silk-road-20-shut-down-operator-arrested-charged/
 
-[^alphabay]: Wikipedia, AlphaBay (court-document account of the operator's arrest with his laptop unlocked and logged in as admin; operational-security errors including a personal email address). https://en.wikipedia.org/wiki/AlphaBay
+[^alphabay]: (secondary) Wikipedia, AlphaBay (court-document account of the operator's arrest while logged into his unencrypted laptop performing an administrative reboot of an AlphaBay server; operational-security errors including a personal email address). https://en.wikipedia.org/wiki/AlphaBay
 
 [^kingdom]: The Record, "Kingdom Market administrator gets 16-year sentence": crypto traced to wallets in the administrator's name, and one IP address tying a Reddit account to his personal accounts. https://therecord.media/kingdom-market-administrator-gets-16-year-sentence
 
 [^incognito]: Cointelegraph, "Incognito Market founder arrested, charged in New York" (May 2024): bitcoin swapped to Monero, then deposited at an exchange that held his ID. https://cointelegraph.com/news/incognito-market-founder-arrested-charged-new-york
 
-[^monopoly]: Security Affairs, on charges against the alleged Monopoly Market administrator (2023): seized database with vendor invoices, MoonPay deposits, social media and email links. https://securityaffairs.com/147849/cyber-crime/monopoly-market-admin-charged.html
+[^monopoly]: (secondary) Security Affairs, on charges against the alleged Monopoly Market administrator (2023): the seized server held vendor communications, commission invoices and cryptocurrency payment records. https://securityaffairs.com/147849/cyber-crime/monopoly-market-admin-charged.html
 
 [^oxymonster]: Security Affairs, "Dream Market dark web drug dealer OxyMonster arrested on way to beard contest" (September 2017): tip jar paid to his own wallets, writing-style comparison, PGP key found on his laptop at the border. https://securityaffairs.com/63689/cyber-crime/market-dark-oxymonster-arrested.html
 

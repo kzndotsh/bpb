@@ -48,7 +48,7 @@ The decision rule: a CPU-only job can have real confidential compute anywhere; a
 
 [^cloudborne]: BleepingComputer, "Hackers Backdoor Cloud Servers to Attack Future Customers" (February 2019), on Eclypsium's Cloudborne research. https://www.bleepingcomputer.com/news/security/hackers-backdoor-cloud-servers-to-attack-future-customers/
 
-[^microvm]: astro, microvm.nix. https://github.com/astro/microvm.nix
+[^microvm]: (primary) astro, microvm.nix. https://github.com/astro/microvm.nix
 
 [^vast]: Vast.ai docs, Linux Virtual Machines. https://docs.vast.ai/linux-virtual-machines
 
