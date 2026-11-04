@@ -24,6 +24,7 @@ Tests marked **[hw]** need real hardware or a real provider (a GPU, a physical T
 3. **M2. Bootstrap and attestation.** The installer host key pinned out of band, the single-use enrollment credential, nonce-bound attestation, sealed key delivery, host certificates issued after attestation, witness registration of the box's event key, and the witness "stream healthy" receipt gating Tang. Test:
    - an attestation response carrying an old nonce is rejected
    - the enrollment credential works once and is refused on any second use
+   - **[hw]** a second machine that uses a copy of the enrollment credential first fails attestation, the credential is spent, the real box cannot enroll, and the failed attempt reaches the witness as an event
    - after delivery the anchor holds no private half of any box key
    - the anchor refuses to enable a box's Tang instance without a fresh witness receipt
    - a box presenting a host certificate for another run ID, or none, is refused
