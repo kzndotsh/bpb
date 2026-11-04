@@ -42,15 +42,20 @@ Tests marked **[hw]** need real hardware or a real provider (a GPU, a physical T
    - the witness's ntfy endpoint refuses TLS 1.2 and logs the group each client negotiates
    - a relay configuration that stops forwarding fails its health check and rolls back within the confirmation timeout, while running boxes keep streaming evidence to the witness throughout
    - **[net]** CI records the group negotiated with each TLS upstream and flags any that fall back from `X25519MLKEM768`
-5. **M4. Sensors, witness independence and alarm correlation.** auditd, LSM-hook sensors, both evidence paths, gap resend, nonce-bound heartbeats, hardened telemetry ingest, failed-authentication events, witness verdicts, the anchor–witness mutual watch, correlation, witness-enforced retention, and CA-signature logging. Test:
+5. **M4. Sensors, witness independence and alarm correlation.** auditd, LSM-hook sensors, both evidence paths, gap resend, nonce-bound heartbeats, the periodic hardware quote with IMA on metal, hardened telemetry ingest, failed-authentication events, witness verdicts, the anchor–witness mutual watch, correlation, witness-enforced retention, and CA-signature logging. Test:
    - killing the eBPF shipper still leaves journald forwarding, and vice versa
    - a honeyfile read through io_uring (in a job profile that keeps io_uring) still fires
    - a dropped event that the resend fills raises no tripwire; a gap that cannot be filled freezes the run
    - a replayed heartbeat (stale nonce) is rejected
+   - **[hw]** a quote replayed from earlier in the run (stale nonce) is rejected, and a quote that misses its window freezes the run
+   - **[hw]** on a TPM box, a file executed after arm that is not in the closure appears in the IMA log over PCR 10 and freezes the run
    - a fuzzed and oversized event stream is stored raw, rejected by the parser, raises an alert, and leaves the witness's history intact
    - each rejected SSH attempt (expired certificate, foreign CA, unknown principal, honey user) arrives at the witness with its reason
    - `nft flush ruleset` as root changes the ruleset digest and freezes the run; nothing burns automatically
    - stopping the anchor and relay together yields one "network event" alert and no per-box freezes, and boxes keep streaming evidence
+   - blackholing the witness's address yields one "witness unreachable" alert and no per-box freezes; no box arms and no new input data is sent until it returns; afterwards every box backfills its gap, and a box whose buffer was tampered with is frozen
+   - the same outage on one provider's boxes only freezes those boxes
+   - a full shipper buffer stops the job and drops no event
    - a witness that stops alerting is caught by the anchor's watch of it
    - a host-certificate signature whose principal matches no started run raises an alert
    - the anchor's attempt to prune the witness's copy early is refused
@@ -106,9 +111,9 @@ The red-team lab is not a single milestone. Its scenario 1 (honest baseline) and
 
 ## Open questions
 
-- Witness hosting. A Pi at home shares fate with the anchor's network, and anyone who seizes the anchor takes it in the same trip, so it cannot be the only witness of the anchor. A tiny VPS is a third provider to trust. Maybe both, with alerts from either.
+- After M4: two or three VPS witnesses on different providers, with 2-of-3 receipts. A gap would count only when two witnesses miss it, and arming would need two healthy receipts, so one flood stops nothing. Certificate Transparency requires timestamps from distinct log operators, and Sigsum's own policy is 2-of-3 witnesses "for reasonable reliability".[^ctpolicy][^sigsum] It costs one or two more providers and reconciling the witnesses' views. Each provider could also be given a different witness address.
+- Decided: witness hosting. Boxes reach only a VPS witness on a provider of its own, separate from the relay's, because every box's host learns the address it connects to. A Pi at home would share fate with the anchor's network and expose your home address. It may still run as a second witness that copies the VPS witness's stream and watches the anchor; no box addresses it (see Topology).
 - The verity deployment path (`nixos-anywhere --phases kexec`, then writing the image to disk) is the plan, but untried. M6 proves or replaces it.
-- Whether the relay and the witness may share a VPS. Fewer providers to trust, but one compromise then costs both the anchor's cover and its watcher.
 - Firmware for the anchor (and a home witness) on T1 hardware. Rung 9 includes an anchor that is seized, backdoored in firmware and handed back. ownerboot (from the sixos author) builds coreboot, a kernel and a cryptsetup initramfs entirely from source with Nix, with binary caches disabled (`--option trusted-public-keys ""`) and binary-only packages forbidden.[^ownerboot] Everything lives in the flash chip, so with the write-protect pin shorted, booting touches no writable unencrypted media. Normal and fallback images can each be write-protected independently, and it kexecs a signed second-stage kernel. It would make the anchor's firmware reproducible and physically read-only. Two things stop it being a decision today:
   - supported hardware is old and narrow: ASUS KGPE-D16 (Opteron-era server board), MSI AM1I, and the Samsung Chromebook Plus (arm64)
   - by the author's own account it currently "dumps you at a bash prompt": the init that hands off to the real system is unpublished
@@ -133,3 +138,7 @@ The red-team lab is not a single milestone. Its scenario 1 (honest baseline) and
 [^tresor]: Müller, Freiling and Dewald, "TRESOR Runs Encryption Securely Outside RAM" (USENIX Security 2011), keeping the AES key in CPU registers rather than DRAM. https://www.usenix.org/legacy/events/sec11/tech/full_papers/Muller.pdf
 
 [^coldboot]: Halderman et al., "Lest We Remember: Cold-Boot Attacks on Encryption Keys" (USENIX Security 2008), and Kicksecure's Cold Boot Attack Defense page summarizing 3MDEB's 2024–25 DDR4/DDR5 retention findings. https://static.usenix.org/event/sec08/tech/full_papers/halderman/halderman_html/ and https://www.kicksecure.com/wiki/Cold_Boot_Attack_Defense
+
+[^ctpolicy]: (primary) Chrome Certificate Transparency policy: embedded SCTs must come from at least two or three distinct CT logs, at least two from distinct log operators. https://googlechrome.github.io/CertificateTransparency/ct_policy.html
+
+[^sigsum]: (primary) Glasklar Teknik, "Named policies for Sigsum": the published policy groups three witnesses with `quorum-rule 2`, "intended to give reasonable reliability". https://www.glasklarteknik.se/post/named-policies-for-sigsum/

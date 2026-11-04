@@ -15,7 +15,8 @@
                 │        ┌──────────────┐                (direct, not    │
                 └───────►│   WITNESS    │◄───────────────via anchor)─────┘
                          │ (3rd vantage)│  append-only, hash-chained,
-                         │ Pi / tiny VPS│  enforces its own retention
+                         │ VPS, own     │  enforces its own retention
+                         │ provider     │
                          └──────────────┘  alerts → phone, no Apple/Google push
 ```
 
@@ -24,6 +25,8 @@
 - **Box** is the target. Assume its operator has root from second zero. It holds no long-lived secrets and no identity.
 - **Witness** is a separate, boring machine. It exists so neither a compromised box nor a compromised anchor can quietly rewrite history, which only works if box evidence does not pass through the anchor. So:
   - **Evidence has its own path.** The box has a second WireGuard peer, the witness, reached directly at the witness's own address (its own nftables and provider-firewall rule), carrying only events and heartbeats. Neither the anchor nor the relay is on that path, so neither can drop, delay or read it. An anchor or relay outage no longer silences the box's evidence.
+  - **The witness's address is public to every host.** Every box's provider learns it, so it is a VPS on a provider of its own: never at home, and never the relay's VPS or provider, so one compromise cannot cost both the anchor's cover and its watcher.
+  - **A home witness is a second copy, never an endpoint.** A Pi at home may run as a second witness. It receives the VPS witness's stream over its own WireGuard link and watches the anchor, but no box ever addresses it, so its address never reaches a provider.
   - **The anchor cannot mint box evidence.** The box's event-signing key is generated on the box at boot and bound into its attestation (see Box lifecycle). The anchor only *registers* the attested public key with the witness, and that registration is itself a logged, signed witness event. A compromised anchor that registers a key of its own does it on the record.
   - **The witness decides; the anchor acts.** The witness sends signed verdicts (stream healthy at seq N, gap, tripwire) to the anchor over their own WireGuard link. The anchor releases Tang at arm only against a fresh witness "stream healthy" receipt, so "no witness, no job" is enforced by the anchor, not by box code that root can ignore.
   - **The witness owns its history.** It enforces its own retention clock and never deletes a commitment. The anchor has no delete authority over it (see Ledger).
