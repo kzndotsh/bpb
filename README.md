@@ -1,4 +1,4 @@
-# bpb — bulletproof box
+# bpb: bulletproof box
 
 A NixOS flake that turns any machine you can SSH into (a rented GPU box, a VPS, a closet server, a QEMU VM) into a hardened, attested, self-reporting, burnable compute node. You deploy it with `nixos-anywhere`, it proves what it is running, it screams when touched, and it can be destroyed so thoroughly that a seized disk is noise.
 
@@ -31,7 +31,6 @@ A security project is only honest if it says where it stops. bpb does **not** hi
 - [Operator](docs/operator.md) — the controls a person performs: identities, keys, backups, drills.
 - [Limits](docs/limits.md) — forensic exposure, the honest ceiling, and operator anonymity.
 - [Roadmap](docs/roadmap.md) — milestones and open questions.
-- [References](docs/references.md) — every source cited across the docs.
 
 Start with [the index](docs/index.md) for the core ideas and the full table of contents.
 

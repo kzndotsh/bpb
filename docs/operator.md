@@ -1,4 +1,6 @@
-## Operator discipline (not code, still controls)
+# Operator
+
+The controls a person performs. They aren't code, but they are still controls.
 
 - One identity per provider: alias email, separate password vault, separate browser profile. Payment is the hard link. Decide per provider whether KYC is acceptable.
 - Snapshot each provider's ToS, privacy policy, and DPA at signup. Diffing them at renewal is optional: it is one of the chores most likely to rot, and a skipped diff costs less than the others.

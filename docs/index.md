@@ -32,4 +32,7 @@ These came out of the original theorycrafting. Everything below is an implementa
 - [Operator](operator.md) — The controls a person performs: identities, keys, backups, drills.
 - [Limits](limits.md) — Forensic exposure, the honest ceiling, and operator anonymity.
 - [Roadmap](roadmap.md) — Milestones and open questions.
-- [References](references.md) — Every source cited across the docs.
+
+## Sources
+
+Each page lists its sources as footnotes at the bottom. Claims without a marker are design decisions or come from general knowledge; where such a claim is uncertain, the text says so. Pages were read in November 2026. Several sites block automated fetches, so a link that fails from a script may still work in a browser.

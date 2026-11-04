@@ -1,3 +1,5 @@
+# Architecture
+
 ## Platform by role
 
 The workload picks the box's OS, not hardening ambition. Kernel hardening raises the cost of rungs 1 and 2. Rungs 4 to 6 (hypervisor, BMC, legal) sit below or outside any guest kernel, and the design already concedes root to the host from second zero. bpb's value is in off-box evidence, ephemerality, Tang and the airlock, so the OS for each role is chosen for what that role has to do.

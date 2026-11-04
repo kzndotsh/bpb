@@ -1,6 +1,6 @@
-## Controls, by idea
+# Controls, by idea
 
-### Disk and memory (shrink the plaintext window)
+## Disk and memory (shrink the plaintext window)
 
 - Root on tmpfs. Every boot is a fresh machine. `/persist` is an explicit allowlist, empty by default. `/nix/store` is a read-only dm-verity partition.
 - Work volume is LUKS2, unlocked through **Tang, reachable only over WireGuard to the anchor, plus a second factor the anchor holds** (below). A disk imaged, detached, or seized while the box is off cannot be opened. The provider never sees the key.
@@ -14,7 +14,7 @@
 - No `updatedb`, no thumbnailers, no indexers. Assert their absence in a test.
 - GPU memory is a plaintext window too. Some GPUs have not cleared local memory between processes (LeftoverLocals, CVE-2023-4969)[^leftoverlocals], and a marketplace host's previous tenant shared the same card. Zero GPU buffers the job allocated before exit, and assume anything resident on the card while running is readable by the host.
 
-### Network (default deny, egress through you)
+## Network (default deny, egress through you)
 
 - nftables drops everything in and out except four UDP flows: WireGuard and Rosenpass to the relay (tunnelled on to the anchor), and WireGuard and Rosenpass to the witness (the evidence peer). Rosenpass exchanges its keys over its own UDP port, separate from WireGuard's, so every rule, the relay's forwarder and the listener inventory carry both ports.
 - A second firewall sits outside the box, where root on the box cannot reach it: a provider-side firewall where the tier offers one (Hetzner Cloud's supports inbound and outbound rules;[^hetzner][^xe] dedicated servers and marketplace boxes may offer a weaker one or none) allows only those four flows. A root attacker who flushes nftables still cannot talk to anything but the relay and the witness. This covers rungs 2 and 3 only; the provider can change its own firewall.
@@ -61,7 +61,7 @@
   - **The reboot is visible.** It is a heartbeat gap at the witness, so the operator is alerted and the run freezes.
 - **A privileged control path, and only one.** With no root login, no sudo and no polkit, the anchor still needs to trigger root work on the box: the arm-time switches, burn step 3, red-team cases. That goes through a dedicated SSH certificate principal (`bpb-control`) whose certificate carries a `force-command` that writes a request to a root-owned socket service with a fixed set of verbs (arm, burn-local, redteam-case). The service accepts only those verbs and logs each one to the witness. It adds no listener and no setuid wrapper.
 
-### Lockdown (one-way switches after arm)
+## Lockdown (one-way switches after arm)
 
 Flip these after sensors are loaded, so an attacker who arrives later cannot add their own. Before arm, every kernel module the box will ever need is loaded and every device node it needs exists: in particular the NVIDIA modules including `nvidia_uvm`, whose device node is otherwise created on demand by the setuid `nvidia-modprobe`, which would both need a wrapper and fail after `modules_disabled`.
 
@@ -75,7 +75,7 @@ Flip these after sensors are loaded, so an attacker who arrives later cannot add
 
 Record a snapshot of `bpftool prog list`, `lsmod`, and `/etc/ld-nix.so.preload` at arm time. Any diff later is an event. NixOS's glibc reads `/etc/ld-nix.so.preload`, not `/etc/ld.so.preload`; the latter is the wrong file to watch on NixOS.[^mallocnix] (On the box, `/etc` is a read-only overlay, so a write to either fails anyway; the snapshot catches a change made some other way.)
 
-### Kernel config (compile out, then check)
+## Kernel config (compile out, then check)
 
 Sysctls switch features off at runtime; a root attacker or a kernel bug can switch them back on. Code that was never compiled in cannot be re-enabled. The box has one job, so its kernel is built for that job[^asr], and a checker proves the config every build.
 
@@ -122,7 +122,7 @@ nix-mineral (cynicsketch/nix-mineral)[^mineral] is the external module the remov
 3. **Struct-layout randomization is worthless in a public, reproducible build.** The seed is fixed at build time, so anyone can rebuild the flake and learn the layout. A secret per-box seed would break the independent-rebuild comparison. It stays off, and the reason is written down.
 4. **KSPP wants BPF and kprobes restricted; the sensors need them.** Both stay. Unprivileged BPF is off. Each is an entry in the checker's allowlist with this reason attached.
 
-### Sensors (evidence leaves at event time)
+## Sensors (evidence leaves at event time)
 
 - auditd rules on `execve`, `connect`, `setuid`, `mount`, `init_module`, `bpf`, `ptrace`, writes to `authorized_keys`, sudoers, systemd unit dirs, crontabs.
 - Syscall rules are not enough on their own. Anything that does I/O without a syscall (io_uring today, whatever comes next) walks past them. File opens, connects and execs are also watched at LSM hooks (`security_file_open`, `security_socket_connect`, `bprm_check_security`) through BPF-LSM or Tetragon kprobes on those functions, which fire no matter how the request arrived.
@@ -139,7 +139,7 @@ nix-mineral (cynicsketch/nix-mineral)[^mineral] is the external module the remov
 - **Unusual resource use is a signal.** In that same compromise, the owner only noticed because a CPU monitor fired on the attacker's scanner.[^vpsconsole] The heartbeat carries CPU, GPU and memory utilization and egress byte counts. The anchor knows each job's expected profile, and a departure from it is an alert: GPU load with no job running, sustained CPU load while the job reports idle, egress beyond what the job sends. A rented GPU is the first thing a cryptominer wants. It is alert-only and never on the automatic ladder: real jobs load data on CPU while the GPU waits, compile kernels, write checkpoints, and load drivers late, and every job would need a hand-tuned profile to avoid false trips.
 - **An untested dead man's switch is worse than none: it gives false confidence.**[^deadman] The witness runs a scheduled self-test. On a fixed schedule it expects a synthetic silence from a test source and must raise, and deliver, the alert down the real path to your phone. If that end-to-end test has not passed within its window, the stale test is itself an alarm. The same self-test covers the anchor heartbeat path.
 
-### Integrity and supply chain
+## Integrity and supply chain
 
 - All flake inputs pinned. Model weights and container images fetched as fixed-output derivations, so a hash mismatch is a build failure.
 - The store is a read-only dm-verity partition (see Platform by role), so a modified store page fails when read. There is no `nix store verify` on the box: the box has no Nix (below), and a repart image may not even register a Nix database. Verity replaces that check rather than supplementing it.
@@ -156,7 +156,7 @@ nix-mineral (cynicsketch/nix-mineral)[^mineral] is the external module the remov
   - The auditd `execve` rule makes this a tripwire: any exec whose binary path is outside `/nix/store` is an alert, not a log line.
 - **Nothing to live off.** `environment.defaultPackages = lib.mkForce [ ]`[^xe] removes the default tools (perl, rsync, nano and friends). The box ships only what the job and bpb's own services need, so an attacker brings their own tools, which means more writes, more execs and more events.
 
-### Closure minimization (nothing ships that isn't needed)
+## Closure minimization (nothing ships that isn't needed)
 
 **Why it matters here.** The verity store and `noexec` mounts stop an attacker from running binaries they bring in. They do not stop an attacker from feeding a script to an interpreter already on the box (`bash x.sh`, `python x.py`, `perl -e`), which the plan otherwise only logs. Every interpreter removed turns that log line into a refusal. Beyond that, a smaller closure means:
 
@@ -204,7 +204,7 @@ It is defense in depth, not a boundary. What must stay is still useful to a root
   - Routine updates to the relay and anchor happen only between runs. During a run, an emergency patch goes to the witness first. The relay and anchor wait for a gap between runs, or for `bpb hold`.
 - The anchor's Nix is a target too. In 2025 Nix, Lix and Guix shipped a cluster of privilege-escalation fixes around build directories and the build sandbox (CVE-2025-46416, -52991, -52992, -52993)[^nixadvisory], and the Lix team states the sandbox is not a security boundary[^lixcves]. Keep the anchor's Nix on a patched release, and never build derivations you have not reviewed on the anchor. Unreviewed builds go to a disposable builder.
 
-### Canaries (cover what sensors cannot see)
+## Canaries (cover what sensors cannot see)
 
 - **Honeyfiles** with tempting names (`vault.kdbx`, `seed-backup.txt`, `id_ed25519.old`). Any open fires an alert through fanotify.
 - **Honey credentials.** A fake cloud key, fake SSH key, fake API token in plausible locations. They are tokens you mint yourself, so any use, anywhere, from any IP, phones home. This is the one signal that works after the attacker has left the box.
@@ -214,7 +214,7 @@ It is defense in depth, not a boundary. What must stay is still useful to a root
 - **Random layout per arm.** Canary names and paths are drawn per box from a generator on the anchor seeded from the system CSPRNG, never from anything derivable like the run ID. An attacker who studied one box learns nothing about the next. Your public repo does not reveal which files are traps.
 - **Per-box content canaries.** Every job's data bundle includes one unique decoy item. If it ever surfaces anywhere, the ledger tells you exactly which box and provider leaked it.
 
-### Airlock (sanitize, minimize, validate)
+## Airlock (sanitize, minimize, validate)
 
 Everything entering or leaving the box goes through the anchor's airlock. Nothing skips it. Make it the only code path, so skipping it is impossible rather than discouraged.
 
@@ -233,7 +233,7 @@ Return:
 - **Check truth, not only shape.** A well-formed but poisoned result (skewed metrics, a backdoored weights file) passes a schema check. So every job's data bundle includes known-answer items among the decoys, whose correct outputs only the anchor knows, and a run whose known-answer outputs are wrong is rejected and frozen. For results worth it, the same job runs on two providers and the outputs are compared.
 - Results land in a quarantine directory and merge only after validation passes.
 
-### Anchor (the jackpot)
+## Anchor (the jackpot)
 
 Every other control assumes the anchor is safe. It holds every key, the token mapping, the ledger and the CLI, so taking it beats the whole design. It gets the same treatment as a box, plus disk encryption it unlocks itself.
 
@@ -250,7 +250,7 @@ Every other control assumes the anchor is safe. It holds every key, the token ma
 - **Anchor silence does not kill boxes quickly.** Earlier drafts powered boxes off after N minutes of anchor silence. But a power cut at home, an ISP drop or a relay reboot produce exactly that signal, and every running job would die. Now the box's evidence keeps flowing to the witness directly, the witness reports "anchor silent" as one network event, and boxes keep running. Only silence longer than the job's configured window (hours) makes a cooperative box stop its job and power off, as a courtesy. The control that matters does not depend on the box: a box that reboots cannot rejoin or unlock.
 - **Seizure drill.** A VM test powers the anchor off mid-run, images its disk, and asserts that no key, mapping, per-run keystore or ledger body is readable without a token, that the witness raised one "anchor silent" alert, and that running boxes kept streaming evidence to the witness.
 
-### Ledger
+## Ledger
 
 One record per run, signed by the anchor's ledger key and mirrored to the witness. Each field is stored next to a **salted commitment** to it, H(field ‖ 256-bit per-field salt), and the hash chain and the signature cover the commitments, not the raw fields:
 
@@ -282,7 +282,7 @@ The ledger never contains real identifiers. `honey_cred_ids` records which honey
 - Backups obey the same retention. A backup of the anchor or witness that keeps pruned entries silently undoes pruning. Backups are encrypted with `age` to several recipients (both tokens and the paper key) and follow 3-2-1 (three copies, two kinds of media, one off-site).[^panelica] Pruning an offline, off-site copy every 30 days is a chore that will rot, so the off-site copy holds only already-pruned exports: the ledger as commitments plus whatever is past its retention window, never raw bodies. Per-run secrets are excluded from every backup (see Anchor). The quarterly restore drill restores from one of them with the spare token.
 - A test prunes an entry and asserts the chain and signatures still verify, the pruned fields and their salts are gone from the anchor copy, the witness copy and the newest backup, the commitments remain, and an attempt by the anchor to prune the witness early is refused.
 
-### Burn (cryptoshred, then destroy)
+## Burn (cryptoshred, then destroy)
 
 Burn is a human command (`bpb burn`), never an automatic response; automatic responses stop at freeze (see Response ladder).
 
@@ -297,7 +297,7 @@ Step 2 is the guarantee. Step 3 is defense in depth: `luksErase` only removes ke
 
 Every step is idempotent. Re-running `bpb burn` on a box that is already half-burned re-issues only the deletes that have not been confirmed, and converges to `verified-burned`.
 
-### Response ladder
+## Response ladder
 
 Automatic actions stop at **freeze**. Burn is always a human command. Two reasons. Most of the signals below are reported by the box itself, so root on the box can fake them to trigger a burn on its own schedule and destroy the evidence of its intrusion. And the most likely real events (a power cut at home, an ISP drop, a relay reboot, packet loss, a GPU driver loading a module) look the same as attacks. An automatic burn on either would lose undrained results for nothing. Freeze loses at most the work since the last checkpoint.
 

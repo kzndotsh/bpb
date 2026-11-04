@@ -1,3 +1,5 @@
+# Tiers
+
 ## Escalation tiers (pick per job)
 
 | Tier | Where | What it buys |
@@ -31,7 +33,7 @@ Tier caveats:
 
   So T4 raises the bar against a snooping host; it is not a wall, and the honest ceiling says so.
 
-### Compute profiles (what the job runs on)
+## Compute profiles (what the job runs on)
 
 Confidential computing is mature for the CPU and immature-to-absent for accelerators, so the accelerator the job needs decides whether a RAM-protected tier exists at all.
 

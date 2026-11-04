@@ -1,3 +1,5 @@
+# Limits
+
 ## Forensic exposure
 
 What an examiner recovers from a seized or imaged bpb machine, and the control that answers it. This is the adversary half of the threat model written down: published DFIR and sanitization research, not a method. The reassuring result is that nothing below needs a control the plan does not already have; the research mostly confirms the ceiling stated in the next section.

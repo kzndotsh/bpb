@@ -1,3 +1,5 @@
+# Testing
+
 ## Red team mode (the lever)
 
 `bpb redteam <box>` runs a scripted adversary against your own box and asserts each sensor fired at the witness:
